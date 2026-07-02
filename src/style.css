@@ -168,12 +168,19 @@ body {
 /* ── Game UI Layer ────────────────────────────────────────────────── */
 #ui-layer {
   position: absolute;
-  inset: 0;
+  /* Instead of inset: 0, use explicit top/bottom/left/right boundary mappings */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100dvh; /* Force the interactive layout zone to respect dynamic viewport dimensions */
   pointer-events: none;
   display: flex;
   justify-content: space-between;
   padding: 1.5rem;
   z-index: 10;
+  box-sizing: border-box;
 }
 
 #info {
@@ -308,19 +315,19 @@ body {
   #ui-layer {
     flex-direction: column;
     justify-content: space-between;
-    padding: calc(0.5rem + env(safe-area-inset-top)) 0.75rem
-      calc(0.5rem + env(safe-area-inset-bottom));
-    gap: 0.5rem;
-    height: 100%;
+    align-items: stretch;
+    /* Force safe area offsets directly on padding bounds */
+    padding-top: calc(0.5rem + env(safe-area-inset-top));
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    height: 100dvh;
     width: 100%;
   }
 
-  /* 2. Position the stats header comfortably at the top */
+  /* Compact top panel */
   #info {
     position: relative;
-    top: 0;
-    left: 0;
-    right: 0;
     width: 100%;
     padding: 0.5rem 0.75rem;
     border-radius: 0.75rem;
@@ -331,7 +338,7 @@ body {
   }
   #info h1 {
     display: none;
-  } /* Keeps it clean */
+  }
   #players-list {
     flex-direction: row;
     flex-wrap: wrap;
@@ -342,14 +349,13 @@ body {
   .player-item {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
-    border-radius: 0.35rem;
   }
 
-  /* 3. The Action Center now sits securely at the bottom,
-     completely immune to top navbar overlap
-  */
+  /* Secure Action Center layout */
   #action-center {
+    position: relative;
     width: 100%;
+    display: flex;
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -357,8 +363,8 @@ body {
       15,
       23,
       42,
-      0.93
-    ); /* Darkened slightly for text legibility */
+      0.95
+    ); /* High opacity backdrop to mask hidden elements underneath */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     padding: 0.75rem 1rem;
@@ -367,6 +373,7 @@ body {
     box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
     pointer-events: auto;
     gap: 0.5rem;
+    box-sizing: border-box;
   }
 
   .status-zone {
@@ -374,7 +381,6 @@ body {
     border: none;
     padding: 0;
     text-align: left;
-    width: auto;
     flex: 1;
   }
   #turn-indicator {
@@ -392,12 +398,11 @@ body {
   }
   .dice-hint {
     font-size: 0.55rem;
-    letter-spacing: 0.02em;
   }
 
   #dice-canvas {
-    width: 95px; /* Slightly reduced to guarantee no clipping on small screens */
-    height: 95px;
+    width: 90px;
+    height: 90px;
     border-radius: 0.75rem;
   }
 }

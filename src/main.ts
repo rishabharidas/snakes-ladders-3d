@@ -99,7 +99,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 if (window.innerWidth <= 768) {
-  camera.position.set(0, 72, 0);
+  camera.position.set(-10, 40, 60);
 } else {
   camera.position.set(0, 40, 40);
 }
