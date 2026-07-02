@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: '/snakes-ladders-3d/', 
-})
+  base: "/snakes-ladders-3d/",
+});

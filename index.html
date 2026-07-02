@@ -2,14 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Multiplayer Snakes &amp; Ladders 3D</title>
-    <meta name="description" content="A premium 3D Snakes and Ladders game with a physical dice, beautiful animations, and 2–4 player multiplayer." />
-    <link rel="stylesheet" href="./src/style.css">
+    <meta
+      name="description"
+      content="A premium 3D Snakes and Ladders game with a physical dice, beautiful animations, and 2–4 player multiplayer."
+    />
+    <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
     <div id="app">
-
       <!-- ── Player Setup Overlay ─────────────────────────────────── -->
       <div id="setup-screen">
         <div class="setup-card">
@@ -17,7 +22,7 @@
           <p class="setup-subtitle">Name your players to begin</p>
 
           <div id="player-inputs">
-            <!-- populated by JS: min 2, max 4 players -->
+            <!-- populated by JS -->
           </div>
 
           <button id="add-player-btn">＋ Add Player</button>
@@ -27,18 +32,23 @@
 
       <!-- ── Game UI Layer ──────────────────────────────────────────── -->
       <div id="ui-layer">
-        <!-- Info Panel (top-left) -->
+        <!-- Main Stats / Sidebar Info Panel -->
         <div id="info">
           <h1>Snakes &amp; Ladders 3D</h1>
           <div id="players-list"></div>
-          <h2 id="turn-indicator"></h2>
-          <p id="dice-result"></p>
         </div>
 
-        <!-- Physical Dice (bottom-right) -->
-        <div id="dice-container">
-          <p class="dice-hint">Hold &amp; release to throw!</p>
-          <canvas id="dice-canvas"></canvas>
+        <!-- Action Center: Hosts the dynamic updates & dice interactive canvas -->
+        <div id="action-center">
+          <div class="status-zone">
+            <h2 id="turn-indicator"></h2>
+            <p id="dice-result"></p>
+          </div>
+
+          <div id="dice-container">
+            <p class="dice-hint">Tap or Hold &amp; Flick!</p>
+            <canvas id="dice-canvas"></canvas>
+          </div>
         </div>
       </div>
 
