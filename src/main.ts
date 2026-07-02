@@ -149,8 +149,11 @@ function createTextSprite(text: string, clr: string): THREE.Sprite {
 
 let snakeColorIdx = 0;
 for (const [startStr, endStr] of Object.entries(JUMPS)) {
-    const start    = parseInt(startStr), end    = parseInt(endStr);
-    const startPos = tilePositions[start], endPos = tilePositions[end];
+    const start = Number(startStr);
+    const end   = Number(endStr);
+    
+    const startPos = tilePositions[start];
+    const endPos   = tilePositions[end];
 
     if (start < end) {
         /* ── LADDER ── */
