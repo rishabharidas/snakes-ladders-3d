@@ -810,6 +810,7 @@ function updateUI() {
             <div style="display:flex;align-items:center;gap:8px">
                 <div class="player-color-box" style="background:#${p.color.toString(16).padStart(6, "0")}"></div>
                 <span>${p.name}</span>
+                <span style="color: rgba(255, 255, 255, 0.5); margin-right:5px;"> | </span>
             </div>
             <span>Tile ${p.currentTile}</span>
         `;
