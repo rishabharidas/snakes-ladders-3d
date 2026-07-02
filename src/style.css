@@ -21,12 +21,13 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
+  height: 100dvh; /* Force the body to match the dynamic viewport */
 }
 
 #app {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh; /* Switch from 100vh to 100dvh */
 }
 
 /* ── Board Canvas ─────────────────────────────────────────────────── */
