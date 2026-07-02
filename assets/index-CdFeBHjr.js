@@ -4109,6 +4109,7 @@ void main() {
             <div style="display:flex;align-items:center;gap:8px">
                 <div class="player-color-box" style="background:#${e.color.toString(16).padStart(6,`0`)}"></div>
                 <span>${e.name}</span>
+                <span style="color: rgba(255, 255, 255, 0.5); margin-right:5px;"> | </span>
             </div>
             <span>Tile ${e.currentTile}</span>
         `,ed.appendChild(n)});let e=Zu[Qu];td.innerText=`${e.name}'s Turn`,td.style.color=`#${e.color.toString(16).padStart(6,`0`)}`}function id(e){let t=Zu[Qu];if(!t||t.isMoving||t.currentTile>=Wl)return;nd.innerText=`${t.name} rolled ${e}!`;let n=t.currentTile+e;n>Wl&&(n=Wl);for(let e=t.currentTile+1;e<=n;e++)t.moveQueue.push(e);t.isMoving=!0}function ad(e){if(rd(),e.currentTile===Wl){nd.innerText=`🎉 ${e.name} Wins!`,e.isMoving=!1;return}e.isMoving=!1,Qu=(Qu+1)%Zu.length,rd(),Au=`idle`,Fu=0,nd.innerText=``}var od=document.getElementById(`setup-screen`),sd=document.getElementById(`player-inputs`),cd=document.getElementById(`add-player-btn`),ld=document.getElementById(`start-game-btn`),ud=2;function dd(){sd.innerHTML=``;for(let e=0;e<ud;e++){let t=document.createElement(`div`);t.className=`player-input-row`,t.innerHTML=`
