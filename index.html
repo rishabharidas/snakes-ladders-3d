@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplayer Snakes and Ladders 3D</title>
+    <link rel="stylesheet" href="./src/style.css">
+  </head>
+  <body>
+    <div id="app">
+      <div id="ui-layer">
+        <div id="info">
+          <h1>Snakes & Ladders 3D</h1>
+          <div id="players-list">
+            <!-- Player states will be injected here -->
+          </div>
+          <h2 id="turn-indicator">Player 1's Turn</h2>
+          <button id="roll-button">Roll Dice</button>
+          <p id="dice-result"></p>
+        </div>
+      </div>
+      <canvas id="game-canvas"></canvas>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
