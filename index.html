@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multiplayer Snakes &amp; Ladders 3D</title>
+    <meta name="description" content="A premium 3D Snakes and Ladders game with a physical dice, beautiful animations, and 2–4 player multiplayer." />
+    <script type="module" crossorigin src="/snakes-ladders-3d/assets/index-CLTzLoff.js"></script>
+    <link rel="stylesheet" crossorigin href="/snakes-ladders-3d/assets/index-CjQcEYUR.css">
+  </head>
+  <body>
+    <div id="app">
+
+      <!-- ── Player Setup Overlay ─────────────────────────────────── -->
+      <div id="setup-screen">
+        <div class="setup-card">
+          <h1>🎲 Snakes &amp; Ladders 3D</h1>
+          <p class="setup-subtitle">Name your players to begin</p>
+
+          <div id="player-inputs">
+            <!-- populated by JS: min 2, max 4 players -->
+          </div>
+
+          <button id="add-player-btn">＋ Add Player</button>
+          <button id="start-game-btn">Start Game →</button>
+        </div>
+      </div>
+
+      <!-- ── Game UI Layer ──────────────────────────────────────────── -->
+      <div id="ui-layer">
+        <!-- Info Panel (top-left) -->
+        <div id="info">
+          <h1>Snakes &amp; Ladders 3D</h1>
+          <div id="players-list"></div>
+          <h2 id="turn-indicator"></h2>
+          <p id="dice-result"></p>
+        </div>
+
+        <!-- Physical Dice (bottom-right) -->
+        <div id="dice-container">
+          <p class="dice-hint">Hold &amp; release to throw!</p>
+          <canvas id="dice-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Board Canvas (full viewport) -->
+      <canvas id="game-canvas"></canvas>
+    </div>
+  </body>
+</html>
