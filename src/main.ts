@@ -698,3 +698,37 @@ if ("serviceWorker" in navigator) {
       });
   });
 }
+
+// ── Interactive PWA Install Prompt ──
+let deferredPrompt: any = null;
+const installBtn = document.getElementById("pwa-install-btn") as HTMLButtonElement;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  
+  // Only display the button if NOT already running inside the PWA standalone wrapper
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
+  if (!isStandalone && installBtn) {
+    installBtn.classList.remove("hidden");
+  }
+});
+
+if (installBtn) {
+  installBtn.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`MP LOG: PWA installation prompt outcome: ${outcome}`);
+    deferredPrompt = null;
+    installBtn.classList.add("hidden");
+  });
+}
+
+window.addEventListener("appinstalled", () => {
+  console.log("MP LOG: PWA was installed successfully!");
+  if (installBtn) {
+    installBtn.classList.add("hidden");
+  }
+  deferredPrompt = null;
+});
