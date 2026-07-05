@@ -192,12 +192,26 @@ export function setupHostPeer(roomId: string, name: string) {
     updateHostLobby();
   });
 
-  state.peer.on("error", (err) => {
+  state.peer.on("error", (err: any) => {
     const loader = document.getElementById("connection-loader");
     if (loader) loader.classList.add("hidden");
     console.error("PeerJS host error:", err);
-    alert("Lobby creation failed: " + err.message);
-    leaveLobby();
+    if (err.type === "unavailable-id") {
+      alert("Lobby creation failed: Room code is already in use. Please try hosting again.");
+      leaveLobby();
+    } else {
+      console.log("MP LOG: Non-fatal host peer error. Reconnecting to signaling server...");
+      if (state.peer && state.peer.disconnected) {
+        state.peer.reconnect();
+      }
+    }
+  });
+
+  state.peer.on("disconnected", () => {
+    console.log("MP LOG: Host peer disconnected from signaling server. Reconnecting...");
+    if (state.peer && !state.peer.destroyed) {
+      state.peer.reconnect();
+    }
   });
 
   state.peer.on("connection", (conn) => {
@@ -347,11 +361,36 @@ export function setupClientPeer(roomId: string, name: string) {
     });
   });
   
-  state.peer.on("error", (err) => {
+  state.peer.on("error", (err: any) => {
     const loader = document.getElementById("connection-loader");
     if (loader) loader.classList.add("hidden");
     console.error("PeerJS client error:", err);
-    alert("Failed to connect: " + err.message);
-    leaveLobby();
+    if (err.type === "peer-unavailable") {
+      alert("Connection failed: Room does not exist or has inactive host.");
+      leaveLobby();
+    } else {
+      console.log("MP LOG: Non-fatal client peer error. Reconnecting...");
+      if (state.peer && state.peer.disconnected) {
+        state.peer.reconnect();
+      }
+    }
+  });
+
+  state.peer.on("disconnected", () => {
+    console.log("MP LOG: Client peer disconnected from signaling server. Reconnecting...");
+    if (state.peer && !state.peer.destroyed) {
+      state.peer.reconnect();
+    }
   });
 }
+
+// Auto-reconnect when browser tab becomes active/visible again
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    console.log("MP LOG: Document visibility restored. Inspecting PeerJS state...");
+    if (state.peer && state.peer.disconnected && !state.peer.destroyed) {
+      console.log("MP LOG: Peer is disconnected. Triggering reconnect...");
+      state.peer.reconnect();
+    }
+  }
+});
