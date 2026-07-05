@@ -19,14 +19,73 @@
       <div id="setup-screen">
         <div class="setup-card">
           <h1>🎲 Snakes &amp; Ladders 3D</h1>
-          <p class="setup-subtitle">Name your players to begin</p>
-
-          <div id="player-inputs">
-            <!-- populated by JS -->
+          
+          <!-- Mode Tabs -->
+          <div class="setup-tabs">
+            <button id="tab-local" class="tab-btn active">Local Play</button>
+            <button id="tab-online" class="tab-btn">Online Play</button>
           </div>
 
-          <button id="add-player-btn">＋ Add Player</button>
-          <button id="start-game-btn">Start Game →</button>
+          <!-- Local Play Panel -->
+          <div id="panel-local" class="tab-panel active">
+            <p class="setup-subtitle">Name your players to begin</p>
+            <div id="player-inputs">
+              <!-- populated by JS -->
+            </div>
+            <button id="add-player-btn">＋ Add Player</button>
+            <button id="start-game-btn">Start Game →</button>
+          </div>
+
+          <!-- Online Play Panel -->
+          <div id="panel-online" class="tab-panel">
+            <!-- Online Menu Selection -->
+            <div id="online-menu">
+              <p class="setup-subtitle" style="margin-top: 5px;">Host or join a real-time multiplayer game</p>
+              <button id="btn-host-choice" class="action-btn">Host a New Game</button>
+              <button id="btn-join-choice" class="action-btn secondary">Join with Room Code</button>
+            </div>
+
+            <!-- Host Lobby Setup -->
+            <div id="online-host-setup" class="hidden" style="margin-top: 10px;">
+              <p class="setup-subtitle">Create a room to play with friends</p>
+              <div class="player-input-row" style="margin-bottom: 12px;">
+                <div class="player-color-dot" style="background:#ef4444"></div>
+                <input type="text" id="host-player-name" placeholder="Your Name" value="Host Player" maxlength="16" aria-label="Host Player Name" />
+              </div>
+              <button id="btn-create-lobby" class="action-btn">Create Lobby →</button>
+              <button id="btn-back-host" class="link-btn" style="margin-top: 8px;">← Back</button>
+            </div>
+
+            <!-- Join Lobby Setup -->
+            <div id="online-join-setup" class="hidden" style="margin-top: 10px;">
+              <p class="setup-subtitle">Enter room details to connect</p>
+              <div class="player-input-row" style="margin-bottom: 10px;">
+                <input type="text" id="join-room-id" placeholder="Room Code (7 chars)" maxlength="32" aria-label="Room ID" style="font-family: monospace; letter-spacing: 1px;" />
+              </div>
+              <div class="player-input-row" style="margin-bottom: 12px;">
+                <input type="text" id="join-player-name" placeholder="Your Name" value="Guest Player" maxlength="16" aria-label="Join Player Name" />
+              </div>
+              <button id="btn-join-lobby" class="action-btn">Join Game →</button>
+              <button id="btn-back-join" class="link-btn" style="margin-top: 8px;">← Back</button>
+            </div>
+
+            <!-- Lobby Room Status -->
+            <div id="online-lobby" class="hidden" style="margin-top: 10px;">
+              <div class="room-code-container">
+                <span class="room-code-label">Room Code:</span>
+                <span id="room-code-val" class="room-code-val">-</span>
+                <button id="btn-copy-link" title="Copy game invitation link">Copy Link</button>
+              </div>
+              <p class="setup-subtitle" style="margin: 12px 0 6px;">Connected Players (<span id="lobby-count">1</span>/4)</p>
+              <div id="lobby-players-list" style="margin-bottom: 15px;">
+                <!-- Populated dynamically -->
+              </div>
+              <div class="lobby-actions">
+                <button id="btn-start-online-game" class="action-btn" disabled>Waiting for players...</button>
+                <button id="btn-leave-lobby" class="action-btn secondary" style="margin-top: 8px;">Leave Lobby</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -54,6 +113,40 @@
 
       <!-- Board Canvas (full viewport) -->
       <canvas id="game-canvas"></canvas>
+
+      <!-- ── Celebration Popups ────────────────────────────────────────── -->
+      <!-- Mid-game Winner Popup -->
+      <div id="winner-popup" class="modal-overlay hidden">
+        <div class="modal-card celebration-card">
+          <div class="confetti-container"></div>
+          <h2>🎉 Place Secured! 🎉</h2>
+          <p id="winner-message">Alice achieved 1st Place!</p>
+          <div class="glow-effect"></div>
+        </div>
+      </div>
+
+      <!-- Final Leaderboard / End-Game Popup -->
+      <div id="endgame-popup" class="modal-overlay hidden">
+        <div class="modal-card rankings-card">
+          <h2>🏆 Final Rankings 🏆</h2>
+          <div id="rankings-list">
+            <!-- Dynamic Rankings Rows -->
+          </div>
+          <div class="endgame-actions">
+            <button id="btn-endgame-restart" class="action-btn">Play Again</button>
+            <button id="btn-endgame-close" class="action-btn secondary">Close Game</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Loader Modal -->
+      <div id="connection-loader" class="modal-overlay hidden">
+        <div class="modal-card loader-card">
+          <div class="spinner"></div>
+          <h3>Connecting to Session...</h3>
+          <p>Establishing peer-to-peer connection with the host</p>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
