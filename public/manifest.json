@@ -1,0 +1,24 @@
+{
+  "name": "3D Snakes & Ladders Online",
+  "short_name": "SnakesLadders3D",
+  "description": "Real-time P2P online multiplayer 3D Snakes & Ladders board game",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#4f46e5",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
