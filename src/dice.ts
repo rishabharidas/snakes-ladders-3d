@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { DICE_FACE_VALUES, FACE_NORMALS } from "./constants";
 import { state } from "./state";
+import { audio } from "./audio";
 
 // ── Dice Canvas & Renderer Setup ──────────────────────────────────────────────
 export const diceCanvasEl = document.getElementById("dice-canvas") as HTMLCanvasElement;
@@ -367,6 +368,8 @@ function releaseDice(clientX?: number, clientY?: number) {
     deltaY = Math.abs(clientY - interactionStartY);
   }
 
+  audio.playRollSound();
+
   diceState = "flying";
   diceFlightTime = 0;
 
@@ -391,8 +394,8 @@ function releaseDice(clientX?: number, clientY?: number) {
     );
   }
 
-  // Pre-generate and sync dice value for online play
-  if (state.mpMode !== "local" && state.currentPlayerIndex === state.myPlayerIndex) {
+  // Pre-generate and sync dice value for all modes (prevents physical manipulation cheating)
+  if (state.currentPlayerIndex === state.myPlayerIndex) {
     const value = Math.floor(Math.random() * 6) + 1;
     state.remoteTargetValue = value;
     if (state.mpMode === "host") {
@@ -451,4 +454,19 @@ window.addEventListener(
 window.addEventListener("touchend", (e) => {
   const t = e.changedTouches[0];
   releaseDice(t?.clientX, t?.clientY);
+});
+
+window.addEventListener("keydown", (e) => {
+  if (e.code === "Space") {
+    // Only allow spacebar roll if it's our turn and dice is idle
+    const isOurTurn = (state.mpMode === "local") || (state.currentPlayerIndex === state.myPlayerIndex);
+    if (!state.gameStarted || !isOurTurn || state.players[state.currentPlayerIndex]?.isMoving) return;
+    if (diceState !== "idle" && diceState !== "done") return;
+    
+    // Simulate a quick tap interaction
+    startHold(window.innerWidth / 2, window.innerHeight / 2);
+    setTimeout(() => {
+      releaseDice(window.innerWidth / 2, window.innerHeight / 2);
+    }, 50);
+  }
 });

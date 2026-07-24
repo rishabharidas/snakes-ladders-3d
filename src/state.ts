@@ -25,4 +25,7 @@ export const state = {
 
   // Sync state
   remoteTargetValue: null as number | null,
+
+  // Audio state
+  isMuted: false,
 };

@@ -33,6 +33,10 @@ import {
   registerMultiplayerUIUpdate,
   registerMultiplayerRestart,
 } from "./multiplayer";
+import { audio } from "./audio";
+
+// Initialize audio context lazily on first interaction
+audio.initOnInteraction();
 
 // ── Setup Screen DOM References ───────────────────────────────────────────────
 const setupScreen = document.getElementById("setup-screen")!;
@@ -56,11 +60,10 @@ function renderSetupInputs() {
                 maxlength="16"
                 aria-label="Player ${i + 1} name"
             />
-            ${
-              i >= 2
-                ? `<button class="remove-player-btn" aria-label="Remove player ${i + 1}">×</button>`
-                : ""
-            }
+            ${i >= 2
+        ? `<button class="remove-player-btn" aria-label="Remove player ${i + 1}">×</button>`
+        : ""
+      }
         `;
     playerInputsEl.appendChild(row);
   }
@@ -194,40 +197,40 @@ btnCopyLink.addEventListener("click", () => {
 btnCreateLobby.addEventListener("click", () => {
   const name = hostPlayerNameInput.value.trim() || "Host Player";
   const roomId = generateRoomId();
-  
+
   onlineHostSetup.classList.add("hidden");
   onlineLobby.classList.remove("hidden");
-  
+
   const roomCodeVal = document.getElementById("room-code-val")!;
   roomCodeVal.innerText = roomId;
-  
+
   setupHostPeer(roomId, name);
 });
 
 btnJoinLobby.addEventListener("click", () => {
   const roomId = joinRoomIdInput.value.trim().toUpperCase();
   const name = joinPlayerNameInput.value.trim() || "Guest Player";
-  
+
   if (!roomId) {
     alert("Please enter a Room Code");
     return;
   }
-  
+
   onlineJoinSetup.classList.add("hidden");
   onlineLobby.classList.remove("hidden");
-  
+
   const roomCodeVal = document.getElementById("room-code-val")!;
   roomCodeVal.innerText = roomId;
-  
+
   btnStartOnlineGame.disabled = true;
   btnStartOnlineGame.innerText = "Waiting for Host...";
-  
+
   setupClientPeer(roomId, name);
 });
 
 btnStartOnlineGame.addEventListener("click", () => {
   if (state.mpMode !== "host") return;
-  
+
   const playersData = [
     { peerId: state.myPeerId, name: state.hostName }
   ];
@@ -237,7 +240,7 @@ btnStartOnlineGame.addEventListener("click", () => {
       name: state.clientNames[peerId] || "Guest"
     });
   }
-  
+
   console.log("MP LOG: Host starting online game. playersData =", playersData);
   for (const peerId in state.clientConnections) {
     try {
@@ -249,10 +252,19 @@ btnStartOnlineGame.addEventListener("click", () => {
       console.error("MP ERROR: Host failed to send start_game to client", peerId, err);
     }
   }
-  
+
   state.myPlayerIndex = 0;
   startOnlineGame(playersData);
 });
+
+// ── Audio Controls ────────────────────────────────────────────────────────────
+const btnMute = document.getElementById("btn-mute") as HTMLButtonElement;
+if (btnMute) {
+  btnMute.addEventListener("click", () => {
+    state.isMuted = !state.isMuted;
+    btnMute.innerText = state.isMuted ? "🔇" : "🔊";
+  });
+}
 
 // ── In-Game UI Updating ───────────────────────────────────────────────────────
 const playersListDiv = document.getElementById("players-list")!;
@@ -277,10 +289,10 @@ export function updateUI() {
         `;
     playersListDiv.appendChild(div);
   });
-  
+
   const cur = state.players[state.currentPlayerIndex];
   const isOurTurn = (state.mpMode === "local") || (state.currentPlayerIndex === state.myPlayerIndex);
-  
+
   if (state.mpMode !== "local") {
     turnIndicator.innerText = isOurTurn ? `${cur.name}'s Turn (You!)` : `${cur.name}'s Turn`;
   } else {
@@ -334,13 +346,13 @@ function checkTurnEnd(player: Player) {
   updateUI();
   if (player.currentTile === TOTAL_TILES) {
     player.isMoving = false;
-    
+
     player.hasFinished = true;
     const nextRank = state.players.filter(p => p.hasFinished).length;
     player.finishedRank = nextRank;
-    
+
     showWinnerCelebration(player);
-    
+
     setTimeout(() => {
       const winPopup = document.getElementById("winner-popup")!;
       winPopup.classList.add("hidden");
@@ -384,7 +396,7 @@ function spawnConfetti() {
   const container = document.querySelector(".confetti-container");
   if (!container) return;
   container.innerHTML = "";
-  
+
   const colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6"];
   for (let i = 0; i < 40; i++) {
     const piece = document.createElement("div");
@@ -402,35 +414,36 @@ function spawnConfetti() {
 function showWinnerCelebration(player: Player) {
   const winPopup = document.getElementById("winner-popup")!;
   const msgEl = document.getElementById("winner-message")!;
-  
+
   let rankStr = "1st";
   if (player.finishedRank === 2) rankStr = "2nd";
   if (player.finishedRank === 3) rankStr = "3rd";
   if (player.finishedRank === 4) rankStr = "4th";
-  
+
   msgEl.innerText = `${player.name} achieved ${rankStr} Place!`;
-  
+
   winPopup.classList.remove("hidden");
   spawnConfetti();
+  audio.playWinSound();
 }
 
 function showFinalRankings() {
   const endPopup = document.getElementById("endgame-popup")!;
   const listEl = document.getElementById("rankings-list")!;
   listEl.innerHTML = "";
-  
+
   const sorted = [...state.players].sort((a, b) => {
     const rA = a.finishedRank || 99;
     const rB = b.finishedRank || 99;
     return rA - rB;
   });
-  
+
   sorted.forEach((p) => {
     let rankStr = "1st";
     if (p.finishedRank === 2) rankStr = "2nd";
     if (p.finishedRank === 3) rankStr = "3rd";
     if (p.finishedRank === 4) rankStr = "4th";
-    
+
     const row = document.createElement("div");
     row.className = `ranking-row rank-${p.finishedRank}`;
     row.innerHTML = `
@@ -441,7 +454,7 @@ function showFinalRankings() {
     `;
     listEl.appendChild(row);
   });
-  
+
   const restartBtn = document.getElementById("btn-endgame-restart") as HTMLButtonElement;
   if (state.mpMode === "client") {
     restartBtn.disabled = true;
@@ -450,7 +463,7 @@ function showFinalRankings() {
     restartBtn.disabled = false;
     restartBtn.innerText = "Play Again";
   }
-  
+
   endPopup.classList.remove("hidden");
 }
 
@@ -459,7 +472,7 @@ export function restartGameLocal() {
   const endPopup = document.getElementById("endgame-popup")!;
   winPopup.classList.add("hidden");
   endPopup.classList.add("hidden");
-  
+
   state.players.forEach((p) => {
     p.currentTile = 1;
     p.moveQueue = [];
@@ -467,20 +480,20 @@ export function restartGameLocal() {
     p.currentJump = null;
     p.jumpProgress = 0;
     p.hopProgress = 0;
-    
+
     const ox = (p.id % 2 === 0 ? 1 : -1) * 0.8;
     const oz = (p.id < 2 ? 1 : -1) * 0.8;
     p.mesh.position.set(tilePositions[1].x + ox, tilePositions[1].y, tilePositions[1].z + oz);
-    
+
     p.hasFinished = false;
     p.finishedRank = 0;
   });
-  
+
   state.currentPlayerIndex = 0;
   state.gameStarted = true;
   setDiceState("idle");
   setDiceIdleTime(0);
-  
+
   updateUI();
 }
 
@@ -491,7 +504,7 @@ const btnEndgameClose = document.getElementById("btn-endgame-close")!;
 
 btnEndgameRestart.addEventListener("click", () => {
   if (state.mpMode === "client") return;
-  
+
   if (state.mpMode === "host") {
     console.log("MP LOG: Host clicked restart, broadcasting restart_game...");
     for (const peerId in state.clientConnections) {
@@ -504,7 +517,7 @@ btnEndgameRestart.addEventListener("click", () => {
       }
     }
   }
-  
+
   restartGameLocal();
 });
 
@@ -513,7 +526,7 @@ btnEndgameClose.addEventListener("click", () => {
   const endPopup = document.getElementById("endgame-popup")!;
   winPopup.classList.add("hidden");
   endPopup.classList.add("hidden");
-  
+
   leaveLobby();
   updateUI();
 });
@@ -523,17 +536,17 @@ const urlParams = new URLSearchParams(window.location.search);
 const initialRoom = urlParams.get("room");
 if (initialRoom) {
   console.log("MP LOG: Routing to Join Screen for room:", initialRoom);
-  
+
   tabOnline.classList.add("active");
   tabLocal.classList.remove("active");
   panelOnline.classList.add("active");
   panelLocal.classList.remove("active");
-  
+
   const setupTabs = document.querySelector(".setup-tabs") as HTMLDivElement;
   if (setupTabs) {
     setupTabs.classList.add("hidden");
   }
-  
+
   onlineMenu.classList.add("hidden");
   onlineJoinSetup.classList.remove("hidden");
   joinRoomIdInput.value = initialRoom;
@@ -624,9 +637,15 @@ function animate() {
         ) {
           player.currentJump = player.currentTile > nextNum ? "slide" : "climb";
           player.jumpProgress = 0;
+          if (player.currentJump === "slide") {
+            audio.playSnakeSound();
+          } else {
+            audio.playLadderSound();
+          }
         } else {
           if (player.hopProgress === 0) {
             player.startHopPosition.copy(player.mesh.position);
+            audio.playMoveSound();
           }
           player.hopProgress += delta * HOP_SPEED;
 
@@ -706,7 +725,7 @@ const installBtn = document.getElementById("pwa-install-btn") as HTMLButtonEleme
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  
+
   // Only display the button if NOT already running inside the PWA standalone wrapper
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone;
   if (!isStandalone && installBtn) {
